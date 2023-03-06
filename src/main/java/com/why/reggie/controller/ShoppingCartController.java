@@ -50,7 +50,6 @@ public class ShoppingCartController {
     public R<ShoppingCart> add(@RequestBody ShoppingCart shoppingCart) {
         log.info("购物车数据:{}", shoppingCart);
 
-        //设置用户id，指定当前是哪个用户的购物车数据
         Long currentId = BaseContext.getCurrentId();
         shoppingCart.setUserId(currentId);
 

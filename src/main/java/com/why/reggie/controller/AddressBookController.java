@@ -89,4 +89,28 @@ public class AddressBookController {
         return R.success("修改成功");
     }
 
+    @GetMapping("/default")
+    public R<AddressBook> getAddressBook(HttpSession session) {
+
+        Long userId = (Long) session.getAttribute("user");
+
+        LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(AddressBook::getUserId, userId);
+        queryWrapper.eq(AddressBook::getIsDefault, 1);
+
+        AddressBook one = addressBookService.getOne(queryWrapper);
+
+        return R.success(one);
+    }
+
+//    @PutMapping("/default")
+//    public R<AddressBook> getAddressByYourself(@Resquest AddressBook addressBook) {
+//
+//        LambdaQueryWrapper<AddressBook> queryWrapper = new LambdaQueryWrapper<>();
+//        queryWrapper.eq(AddressBook::getId, addressBook.getId());
+//
+//        AddressBook one = addressBookService.getOne(queryWrapper);
+//
+//        return R.success(addressBook);
+//    }
 }
