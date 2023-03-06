@@ -23,6 +23,4 @@ public class OrdersController {
         ordersService.page(pageInfo);
         return R.success(pageInfo);
     }
-
-
 }
