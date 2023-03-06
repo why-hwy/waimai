@@ -9,10 +9,6 @@ spring:
       url: jdbc:mysql://localhost:3306/db2?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&useSSL=false&allowPublicKeyRetrieval=true
       username: root
       password: 123456
-  mall:
-    username: 1095727927@qq.com
-    password: 0608@1130
-    host: smtp.qq.com
     properties:
       mail:
         smtp:
