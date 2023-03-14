@@ -7,11 +7,13 @@ import com.why.reggie.entity.User;
 import com.why.reggie.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/user")
@@ -20,6 +22,9 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @PostMapping("/sendMsg")
     public R<String> sendMsg(@RequestBody User user, HttpSession session) {
@@ -30,7 +35,10 @@ public class UserController {
 
         log.info("code : {}", code);
 
-        session.setAttribute(phone, code);
+//        session.setAttribute(phone, code);
+
+
+        redisTemplate.opsForValue().set(phone, code, 5, TimeUnit.MINUTES);
 
         return R.success("发送成功");
     }
@@ -45,7 +53,7 @@ public class UserController {
         String phone = map.get("phone").toString();
         String code = map.get("code").toString();
 
-        Object codeSeeion = session.getAttribute(phone);
+        Object codeSeeion = redisTemplate.opsForValue().get(phone);
 
 
         if (codeSeeion != null && codeSeeion.equals(code)) {
@@ -60,9 +68,11 @@ public class UserController {
                 userService.save(user);
             }
 
-            session.setAttribute("user",user.getId());
+            session.setAttribute("user", user.getId());
 
             log.info("登录成功");
+
+            redisTemplate.delete(phone);
 
             return R.success(user);
         }
@@ -71,9 +81,9 @@ public class UserController {
     }
 
     @PostMapping("/loginout")
-    public R<String> loginout(HttpServletRequest request){
+    public R<String> loginout(HttpServletRequest request) {
         request.getSession().removeAttribute("user");
-          
+
         return R.success("退出成功");
     }
 
