@@ -14,7 +14,7 @@ public class ReggieApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(ReggieApplication.class, args);
-        log.info("start success");
+        log.info("服务启动");
     }
 
 }
