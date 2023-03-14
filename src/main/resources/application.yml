@@ -5,6 +5,7 @@ spring:
     host: 192.168.117.128
     port: 6379
     database: 0
+    password: 123456
   application:
     name: project_springboot
   datasource:

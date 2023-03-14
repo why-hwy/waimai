@@ -27,7 +27,9 @@ public class UserController {
     private RedisTemplate redisTemplate;
 
     @PostMapping("/sendMsg")
-    public R<String> sendMsg(@RequestBody User user, HttpSession session) {
+    public R<String> sendMsg(@RequestBody User user
+//            , HttpSession session
+    ) {
         String phone = user.getPhone();
 
         //生成验证码块
