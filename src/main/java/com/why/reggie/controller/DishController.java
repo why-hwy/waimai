@@ -79,12 +79,22 @@ public class DishController {
     public R<String> save(@RequestBody DishDto dishDto) {
 //        log.info(dish.toString());
         dishService.saveWithFlavor(dishDto);
+
+        String key = "dish_" + dishDto.getCategoryId() + "_" + dishDto.getStatus();
+        redisTemplate.delete(key);
+
         return R.success("添加菜品成功");
     }
 
     @DeleteMapping
     public R<String> remove(String ids) {
-        dishService.deleteWithFlavor(ids);
+        List<Dish> dishList = dishService.deleteWithFlavor(ids);
+
+        for (Dish dish : dishList) {
+            String key = "dish_" + dish.getCategoryId() + "_1";
+            redisTemplate.delete(key);
+        }
+
         return R.success("删除成功");
     }
 
@@ -117,7 +127,7 @@ public class DishController {
     public R<String> update(@RequestBody DishDto dishDto) {
         dishService.updateWithFlavor(dishDto);
 
-        String key="dish_"+dishDto.getCategoryId()+"_"+dishDto.getStatus();
+        String key = "dish_" + dishDto.getCategoryId() + "_" + dishDto.getStatus();
         redisTemplate.delete(key);
 
         return R.success("修改成功");
@@ -170,7 +180,7 @@ public class DishController {
             return dishDto;
         }).collect(Collectors.toList());
 
-        redisTemplate.opsForValue().set(key,dishDtoList,60, TimeUnit.MINUTES);
+        redisTemplate.opsForValue().set(key, dishDtoList, 60, TimeUnit.MINUTES);
 
         return R.success(dishDtoList);
     }

@@ -88,7 +88,8 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 
     @Override
     @Transactional
-    public void deleteWithFlavor(String ids) {
+    public List<Dish> deleteWithFlavor(String ids) {
+        List<Dish> dishList = null;
         for (String id : ids.split(",")) {
             LambdaQueryWrapper<DishFlavor> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(DishFlavor::getDishId, Long.parseLong(id));
@@ -103,8 +104,14 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
                         "无法删除");
             }
 
+            Dish dish = this.getById(id);
+
+            dishList.add(dish);
+
             dishFlavorService.remove(queryWrapper);
-            this.removeById(id);
+            this.removeById(dish);
         }
+
+        return dishList;
     }
 }
