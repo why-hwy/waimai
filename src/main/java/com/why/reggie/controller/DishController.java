@@ -109,6 +109,9 @@ public class DishController {
             } else {
                 dish.setStatus(1);
             }
+
+            String key="dish_"+dish.getCategoryId()+"_1";
+
             dishService.updateById(dish);
         }
         return R.success("状态修改成功");
@@ -151,7 +154,7 @@ public class DishController {
     public R<List<DishDto>> getList(Dish dish) {
         List<DishDto> dishDtoList = null;
 
-        String key = "dish_" + dish.getCategoryId() + "_" + dish.getStatus();
+        String key = "dish_" + dish.getCategoryId() + "_1";
 
         dishDtoList = (List<DishDto>) redisTemplate.opsForValue().get(key);
         if (dishDtoList != null) {
