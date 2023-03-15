@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/shoppingCart")
 @Slf4j
-public class ShoppingCartController {
+public class  ShoppingCartController {
 
     @Autowired
     private ShoppingCartService shoppingCartService;
