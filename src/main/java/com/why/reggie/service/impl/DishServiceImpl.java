@@ -14,6 +14,7 @@ import com.why.reggie.service.SetmealDishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,10 +26,13 @@ import java.util.stream.Collectors;
 public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements DishService {
 
     @Autowired
-    DishFlavorService dishFlavorService;
+    private DishFlavorService dishFlavorService;
 
     @Autowired
-    SetmealDishService setmealDishService;
+    private SetmealDishService setmealDishService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     @Transactional
@@ -88,8 +92,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 
     @Override
     @Transactional
-    public List<Dish> deleteWithFlavor(String ids) {
-        List<Dish> dishList = null;
+    public void deleteWithFlavor(String ids) {
         for (String id : ids.split(",")) {
             LambdaQueryWrapper<DishFlavor> queryWrapper = new LambdaQueryWrapper<>();
             queryWrapper.eq(DishFlavor::getDishId, Long.parseLong(id));
@@ -104,14 +107,16 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
                         "无法删除");
             }
 
-            Dish dish = this.getById(id);
+            Long categoryId = this.getById(id).getCategoryId();
 
-            dishList.add(dish);
+            log.info(categoryId.toString());
+
+            String key = "dish_" + categoryId.toString() + "_1";
+
+            redisTemplate.delete(key);
 
             dishFlavorService.remove(queryWrapper);
-            this.removeById(dish);
+            this.removeById(id);
         }
-
-        return dishList;
     }
 }

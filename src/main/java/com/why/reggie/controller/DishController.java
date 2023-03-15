@@ -88,12 +88,13 @@ public class DishController {
 
     @DeleteMapping
     public R<String> remove(String ids) {
-        List<Dish> dishList = dishService.deleteWithFlavor(ids);
+        dishService.deleteWithFlavor(ids);
 
-        for (Dish dish : dishList) {
-            String key = "dish_" + dish.getCategoryId() + "_1";
-            redisTemplate.delete(key);
-        }
+
+//        for (String id : keyId) {
+//            String key = "dish_" + id + "_1";
+//            redisTemplate.delete(key);
+//        }
 
         return R.success("删除成功");
     }
@@ -110,9 +111,14 @@ public class DishController {
                 dish.setStatus(1);
             }
 
-            String key="dish_"+dish.getCategoryId()+"_1";
-
             dishService.updateById(dish);
+
+            Dish byId = dishService.getById(dish);
+
+            String key = "dish_" + byId.getCategoryId() + "_1";
+            redisTemplate.delete(key);
+
+            log.info("修改状态{}" ,key);
         }
         return R.success("状态修改成功");
     }

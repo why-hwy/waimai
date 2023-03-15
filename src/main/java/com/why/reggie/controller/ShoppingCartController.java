@@ -98,12 +98,12 @@ public class  ShoppingCartController {
         }
         ShoppingCart cartServiceOne = shoppingCartService.getOne(queryWrapper);
 
-        if (cartServiceOne.getNumber() > 1) {
+        if (cartServiceOne.getNumber() > 0) {
             Integer number = cartServiceOne.getNumber();
             cartServiceOne.setNumber(number - 1);
             shoppingCartService.updateById(cartServiceOne);
         }
-        
+
         return R.success(cartServiceOne);
     }
 
