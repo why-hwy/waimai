@@ -13,6 +13,7 @@ import com.why.reggie.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,9 @@ public class SetmealServicempl extends ServiceImpl<SetmealMapper, Setmeal> imple
 
     @Autowired
     private SetmealDishService setmealDishService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @Override
     @Transactional
@@ -60,6 +64,11 @@ public class SetmealServicempl extends ServiceImpl<SetmealMapper, Setmeal> imple
             }
             setmealDishService.remove(queryWrapper);
             ints[0] += 1;
+
+            Setmeal byId = this.getById(id);
+            String key = "setmealCache::" + byId.getCategoryId() + "_1";
+            redisTemplate.delete(key);
+
             this.removeById(id);
         }
 

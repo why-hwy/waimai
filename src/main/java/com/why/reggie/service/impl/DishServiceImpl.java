@@ -111,7 +111,7 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
 
             log.info(categoryId.toString());
 
-            String key = "dish_" + categoryId.toString() + "_1";
+            String key = "dishCache::" + categoryId.toString() + "_1";
 
             redisTemplate.delete(key);
 

@@ -13,7 +13,9 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +31,9 @@ public class SetmealController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     @GetMapping("/page")
     public R<Page> page(int page, int pageSize, String name) {
@@ -66,12 +71,18 @@ public class SetmealController {
     }
 
     @PostMapping
+//    @CacheEvict(value = "setmealCache", allEntries = true)
     public R<String> save(@RequestBody SetmealDto setmealDto) {
         setmealService.saveWithSetmealDsh(setmealDto);
+
+        String key = "setmealCache::" + setmealDto.getCategoryId() + "_1";
+        redisTemplate.delete(key);
+
         return R.success("添加套餐成功");
     }
 
     @DeleteMapping
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public R<String> remove(String ids) {
         int[] ints;
         ints = setmealService.deleteWithSetmealDish(ids);
@@ -88,6 +99,10 @@ public class SetmealController {
     @PutMapping
     public R<String> update(@RequestBody SetmealDto setmealDto) {
         setmealService.updateWithSetmealDish(setmealDto);
+
+        String key = "setmealCache::" + setmealDto.getCategoryId() + "_1";
+        redisTemplate.delete(key);
+
         return R.success("修改成功");
     }
 
@@ -103,6 +118,11 @@ public class SetmealController {
                 setmeal.setStatus(1);
             }
             setmealService.updateById(setmeal);
+
+            Setmeal byId = setmealService.getById(setmeal);
+
+            String key = "setmealCache::" + byId.getCategoryId() + "_1";
+            redisTemplate.delete(key);
         }
         return R.success("状态修改成功");
     }
