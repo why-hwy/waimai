@@ -71,13 +71,9 @@ public class SetmealController {
     }
 
     @PostMapping
-//    @CacheEvict(value = "setmealCache", allEntries = true)
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public R<String> save(@RequestBody SetmealDto setmealDto) {
         setmealService.saveWithSetmealDsh(setmealDto);
-
-        String key = "setmealCache::" + setmealDto.getCategoryId() + "_1";
-        redisTemplate.delete(key);
-
         return R.success("添加套餐成功");
     }
 
@@ -97,16 +93,14 @@ public class SetmealController {
     }
 
     @PutMapping
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public R<String> update(@RequestBody SetmealDto setmealDto) {
         setmealService.updateWithSetmealDish(setmealDto);
-
-        String key = "setmealCache::" + setmealDto.getCategoryId() + "_1";
-        redisTemplate.delete(key);
-
         return R.success("修改成功");
     }
 
     @PostMapping("/status/{status}")
+    @CacheEvict(value = "setmealCache", allEntries = true)
     public R<String> updateStatus(@PathVariable("status") int status, @NotNull String ids) {
 
         for (String id : ids.split(",")) {
@@ -118,11 +112,6 @@ public class SetmealController {
                 setmeal.setStatus(1);
             }
             setmealService.updateById(setmeal);
-
-            Setmeal byId = setmealService.getById(setmeal);
-
-            String key = "setmealCache::" + byId.getCategoryId() + "_1";
-            redisTemplate.delete(key);
         }
         return R.success("状态修改成功");
     }

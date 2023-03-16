@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -35,9 +36,6 @@ public class DishController {
 
     @Autowired
     private CategoryService categoryService;
-
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     @GetMapping("/page")
     public R<Page> page(int page, int pageSize, String name) {
@@ -78,30 +76,21 @@ public class DishController {
     }
 
     @PostMapping
+    @CacheEvict(value = "dishCache", allEntries = true)
     public R<String> save(@RequestBody DishDto dishDto) {
-//        log.info(dish.toString());
         dishService.saveWithFlavor(dishDto);
-
-        String key = "dishCache::" + dishDto.getCategoryId() + "_" + dishDto.getStatus();
-        redisTemplate.delete(key);
-
         return R.success("添加菜品成功");
     }
 
     @DeleteMapping
+    @CacheEvict(value = "dishCache", allEntries = true)
     public R<String> remove(String ids) {
         dishService.deleteWithFlavor(ids);
-
-
-//        for (String id : keyId) {
-//            String key = "dish_" + id + "_1";
-//            redisTemplate.delete(key);
-//        }
-
         return R.success("删除成功");
     }
 
     @PostMapping({"/status/{status}", "/status/{status}"})
+    @CacheEvict(value = "dishCache", allEntries = true)
     public R<String> updateStatus(@PathVariable("status") int status, String ids) {
 
         for (String id : ids.split(",")) {
@@ -114,13 +103,6 @@ public class DishController {
             }
 
             dishService.updateById(dish);
-
-            Dish byId = dishService.getById(dish);
-
-            String key = "dishCache::" + byId.getCategoryId() + "_1";
-            redisTemplate.delete(key);
-
-//            log.info("修改状态{}", key);
         }
         return R.success("状态修改成功");
     }
@@ -135,12 +117,9 @@ public class DishController {
 
 
     @PutMapping
+    @CacheEvict(value = "dishlCache", allEntries = true)
     public R<String> update(@RequestBody DishDto dishDto) {
         dishService.updateWithFlavor(dishDto);
-
-        String key = "dishCache::" + dishDto.getCategoryId() + "_" + dishDto.getStatus();
-        redisTemplate.delete(key);
-
         return R.success("修改成功");
     }
 

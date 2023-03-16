@@ -27,9 +27,6 @@ public class SetmealServicempl extends ServiceImpl<SetmealMapper, Setmeal> imple
     @Autowired
     private SetmealDishService setmealDishService;
 
-    @Autowired
-    private RedisTemplate redisTemplate;
-
     @Override
     @Transactional
     public void saveWithSetmealDsh(SetmealDto setmealDto) {
@@ -64,11 +61,6 @@ public class SetmealServicempl extends ServiceImpl<SetmealMapper, Setmeal> imple
             }
             setmealDishService.remove(queryWrapper);
             ints[0] += 1;
-
-            Setmeal byId = this.getById(id);
-            String key = "setmealCache::" + byId.getCategoryId() + "_1";
-            redisTemplate.delete(key);
-
             this.removeById(id);
         }
 

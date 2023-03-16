@@ -14,7 +14,6 @@ import com.why.reggie.service.SetmealDishService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,8 +30,6 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
     @Autowired
     private SetmealDishService setmealDishService;
 
-    @Autowired
-    private RedisTemplate redisTemplate;
 
     @Override
     @Transactional
@@ -110,10 +107,6 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish> implements Di
             Long categoryId = this.getById(id).getCategoryId();
 
             log.info(categoryId.toString());
-
-            String key = "dishCache::" + categoryId.toString() + "_1";
-
-            redisTemplate.delete(key);
 
             dishFlavorService.remove(queryWrapper);
             this.removeById(id);
